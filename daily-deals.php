@@ -2,7 +2,7 @@
 /*
 Plugin Name: Daily Deals Rotator
 Description: Manage an automatic daily deal promo rotator with images, captions, and links.
-Version: 1.0.5
+Version: 1.0.6
 Author: StratLab Marketing
 Author URI: https://strategylab.ca/
 Text Domain: daily-deals
