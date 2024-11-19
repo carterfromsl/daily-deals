@@ -1,0 +1,10 @@
+/*Styles for Daily Deals admin page*/
+
+.day-form {
+  padding: 10px;
+  background-color: white;
+  border: 1px solid #ddd;
+  margin: 10px 0;
+  width: 100%;
+  max-width: 800px;
+}
