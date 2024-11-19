@@ -8,6 +8,7 @@
   appearance: none;
   cursor: pointer;
   flex-grow: 1;
+  padding: 0.5em;
 }
 
 .dd-nav .active-nav {
@@ -28,17 +29,23 @@
   display: block;
 }
 
+.daily-deal img {
+  width: 100%;
+  max-width: 100%;
+}
+
+img.dd-promo {
+    display: block;
+}
+
 @media (min-width: 767px) {
   img.dd-mobile {
     display: none;
   }
-  img.dd-promo {
-    display: block;
-  }
 }
 
 @media (max-width: 767px) {
-  img.dd-mobile + img {
+  img.dd-mobile + img.dd-promo {
     display: none;
   }
 }
