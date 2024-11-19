@@ -2,7 +2,7 @@
 /*
 Plugin Name: Daily Deals Rotator
 Description: Manage an automatic daily deal promo rotator with images, captions, and links.
-Version: 1.0.3
+Version: 1.0.4
 Author: StratLab Marketing
 Author URI: https://strategylab.ca/
 Text Domain: daily-deals
@@ -110,80 +110,80 @@ function daily_deals_settings_page()
 	        }
 	        echo "</div></div></div>";
 	
-	        echo "<div class='day-input'><label for='daily_deals_{$lower_day}_caption'>Caption:</label><textarea id='daily_deals_{$lower_day}_caption' name='daily_deals_{$lower_day}_caption'>" . esc_textarea(get_option("daily_deals_{$lower_day}_caption")) . "</textarea></div></div></div>";
-	    }
-    echo '</div><input type="submit" value="Save Changes" class="button button-primary"></form></div>';
+		echo "<div class='day-input'><label for='daily_deals_{$lower_day}_caption'>Caption:</label><textarea id='daily_deals_{$lower_day}_caption' name='daily_deals_{$lower_day}_caption'>" . esc_textarea(get_option("daily_deals_{$lower_day}_caption")) . "</textarea></div></div></div>";
+	}
+	echo '</div><input type="submit" value="Save Changes" class="button button-primary"></form></div>';
 }
 
 // Shortcode to display daily deals
 add_shortcode('daily_deals', function ($atts) {
-    $atts = shortcode_atts(array(
-        'nav' => true, // Default to true to show navigation
-    ), $atts, 'daily_deals');
+	$atts = shortcode_atts(array(
+		'nav' => true, // Default to true to show navigation
+		), $atts, 'daily_deals');
 
-    $output = '<div class="daily-deals-wrap">';
+	$output = '<div class="daily-deals-wrap">';
     
-    if ($atts['nav']) {
-        $output .= '<nav class="dd-nav">';
-        $current_day = strtolower(date('l'));
-        foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
-            $lower_day = strtolower($day);
-            $enabled = get_option("daily_deals_{$lower_day}_enabled");
-            $active_class = ($lower_day === $current_day) ? ' active-nav' : '';
-            if ($enabled) {
-                $output .= "<button type='button' class='dd-nav-button{$active_class}' data-day='{$lower_day}'>{$day}</button>";
-            }
-        }
-        $output .= '</nav>';
-    }
-    $output .= '<ul class="daily-deals-list">';
+	if ($atts['nav']) {
+		$output .= '<nav class="dd-nav">';
+		$current_day = strtolower(date('l'));
+		foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
+			$lower_day = strtolower($day);
+			$enabled = get_option("daily_deals_{$lower_day}_enabled");
+			$active_class = ($lower_day === $current_day) ? ' active-nav' : '';
+			if ($enabled) {
+				$output .= "<button type='button' class='dd-nav-button{$active_class}' data-day='{$lower_day}'>{$day}</button>";
+			}
+		}
+		$output .= '</nav>';
+	}
+	$output .= '<ul class="daily-deals-list">';
     
-    foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
-        $lower_day = strtolower($day);
-        $enabled = get_option("daily_deals_{$lower_day}_enabled");
-        $promo_image = esc_url(get_option("daily_deals_{$lower_day}_promo_image"));
-        $mobile_image = esc_url(get_option("daily_deals_{$lower_day}_mobile_image"));
-        $caption = esc_html(get_option("daily_deals_{$lower_day}_caption"));
-        $link = esc_url(get_option("daily_deals_{$lower_day}_link"));
-        $active_class = ($lower_day === $current_day) ? ' active-deal' : '';
-        
-        if ($enabled && $promo_image) {
-            $output .= "<li id='dd-{$lower_day}' class='daily-deal{$active_class}'>";
-            if ($link) {
+	foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
+		$lower_day = strtolower($day);
+		$enabled = get_option("daily_deals_{$lower_day}_enabled");
+	        $promo_image = esc_url(get_option("daily_deals_{$lower_day}_promo_image"));
+	        $mobile_image = esc_url(get_option("daily_deals_{$lower_day}_mobile_image"));
+	        $caption = esc_html(get_option("daily_deals_{$lower_day}_caption"));
+	        $link = esc_url(get_option("daily_deals_{$lower_day}_link"));
+	        $active_class = ($lower_day === $current_day) ? ' active-deal' : '';
+		
+		if ($enabled && $promo_image) {
+			$output .= "<li id='dd-{$lower_day}' class='daily-deal{$active_class}'>";
+			if ($link) {
 				$output .= "<a href='{$link}' target='_blank'>";
 			}
-            if ($mobile_image) {
-                $output .= "<img class='dd-mobile' src='{$mobile_image}' alt='Mobile Image' />";
-            }
-            $output .= "<img class='dd-promo' src='{$promo_image}' alt='Promo Image' />";
-            if ($caption) {
+			if ($mobile_image) {
+				$output .= "<img class='dd-mobile' src='{$mobile_image}' alt='{$lower_day}' />";
+			}
+			$output .= "<img class='dd-promo' src='{$promo_image}' alt='{$lower_day}' />";
+			if ($caption) {
 				$output .= "<span class='dd-caption'>{$caption}</span>";
 			}
 			if ($link) {
 				$output .= "</a>";
 			}
-            $output .= "</li>";
-        }
-    }
-    $output .= '</ul></div>';
+			$output .= "</li>";
+		}
+	}
+	$output .= '</ul></div>';
     
-    return $output;
+	return $output;
 });
 
 // Enqueue necessary scripts for interactivity
 add_action('wp_enqueue_scripts', function () {
-    wp_enqueue_script('daily-deals-script', plugin_dir_url(__FILE__) . 'daily-deals.js', ['jquery'], null, true);
-    wp_localize_script('daily-deals-script', 'daily_deals_data', array('ajax_url' => admin_url('admin-ajax.php')));
-    wp_enqueue_style('daily-deals-style', plugin_dir_url(__FILE__) . 'daily-deals.css');
+	wp_enqueue_script('daily-deals-script', plugin_dir_url(__FILE__) . 'daily-deals.js', ['jquery'], null, true);
+	wp_localize_script('daily-deals-script', 'daily_deals_data', array('ajax_url' => admin_url('admin-ajax.php')));
+	wp_enqueue_style('daily-deals-style', plugin_dir_url(__FILE__) . 'daily-deals.css');
 });
 
 // Add AJAX handler in WordPress to get the current day in site's timezone
 add_action('wp_ajax_get_wordpress_timezone_day', 'get_wordpress_timezone_day');
 add_action('wp_ajax_nopriv_get_wordpress_timezone_day', 'get_wordpress_timezone_day');
 function get_wordpress_timezone_day() {
-    $timezone = wp_timezone();
-    $current_time = new DateTime('now', $timezone);
-    wp_send_json(array('day' => $current_time->format('l'), 'time' => $current_time->format('H:i:s')));
+	$timezone = wp_timezone();
+	$current_time = new DateTime('now', $timezone);
+	wp_send_json(array('day' => $current_time->format('l'), 'time' => $current_time->format('H:i:s')));
 }
 
 ?>
