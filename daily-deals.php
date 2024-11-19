@@ -86,9 +86,11 @@ function daily_deals_settings_page()
         $enabled = get_option("daily_deals_{$lower_day}_enabled");
         $promo_image = get_option("daily_deals_{$lower_day}_promo_image");
         $mobile_image = get_option("daily_deals_{$lower_day}_mobile_image");
-        echo "<div class='day-form'><h2>{$day}</h2>";
-        echo "<label class='day-check' for='daily_deals_{$lower_day}_enabled'><input type='checkbox' id='daily_deals_{$lower_day}_enabled' name='daily_deals_{$lower_day}_enabled' value='1' " . checked(1, $enabled, false) . " /> Enable {$day}</label>";
-        echo "<div class='day-image'><label>Promo Image:</label>";
+        $disabled_class = $enabled ? '' : 'disabled';
+        echo "<div class='day-form {$disabled_class}' id='dd-{$lower_day}'><h2>{$day}</h2>";
+        echo "<label class='day-check' for='daily_deals_{$lower_day}_enabled'><input type='checkbox' id='daily_deals_{$lower_day}_enabled' name='daily_deals_{$lower_day}_enabled' value='1' class='day-checkbox' " . checked(1, $enabled, false) . " /> Enable {$day}</label>";
+        echo "<div class='day-content'><div class='day-input'><label for='daily_deals_{$lower_day}_link'>Promo Link:</label><input type='text' id='daily_deals_{$lower_day}_link' name='daily_deals_{$lower_day}_link' placeholder='https://...' value='" . esc_attr(get_option("daily_deals_{$lower_day}_link")) . "' /></div>";
+        echo "<div class='day-images'><div class='day-image'><label>Promo Image:</label>";
         echo "<input type='hidden' name='daily_deals_{$lower_day}_promo_image' id='daily_deals_{$lower_day}_promo_image' value='" . esc_attr($promo_image) . "' />";
         echo "<button type='button' class='button select-image' data-target='#daily_deals_{$lower_day}_promo_image'>Select Image</button>";
         echo "<div class='image-preview' id='preview_{$lower_day}_promo_image'>";
@@ -104,10 +106,9 @@ function daily_deals_settings_page()
         if ($mobile_image) {
             echo "<img src='" . esc_url($mobile_image) . "' style='max-width: 150px;'><button type='button' class='button remove-image' title='Remove Image'>×</button>";
         }
-        echo "</div></div>";
+        echo "</div></div></div>";
 
-        echo "<div class='day-input'><label for='daily_deals_{$lower_day}_caption'>Caption:</label><textarea id='daily_deals_{$lower_day}_caption' name='daily_deals_{$lower_day}_caption'>" . esc_textarea(get_option("daily_deals_{$lower_day}_caption")) . "</textarea></div>";
-        echo "<div class='day-input'><label for='daily_deals_{$lower_day}_link'>Promo Link:</label><input type='text' id='daily_deals_{$lower_day}_link' name='daily_deals_{$lower_day}_link' placeholder='https://...' value='" . esc_attr(get_option("daily_deals_{$lower_day}_link")) . "' /></div></div>";
+        echo "<div class='day-input'><label for='daily_deals_{$lower_day}_caption'>Caption:</label><textarea id='daily_deals_{$lower_day}_caption' name='daily_deals_{$lower_day}_caption'>" . esc_textarea(get_option("daily_deals_{$lower_day}_caption")) . "</textarea></div></div></div>";
     }
     echo '<input type="submit" value="Save Changes" class="button button-primary"></form></div>';
 }
@@ -120,10 +121,9 @@ add_shortcode('daily_deals', function () {
     foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
         $lower_day = strtolower($day);
         $enabled = get_option("daily_deals_{$lower_day}_enabled");
-        $promo_image = esc_url(get_option("daily_deals_{$lower_day}_promo_image"));
         $active_class = ($lower_day === $current_day) ? ' active-nav' : '';
-        if ($enabled && $promo_image) {
-            $output .= "<button type='button' class='dd-nav-button {$active_class}' data-day='{$lower_day}'>{$day}</button>";
+        if ($enabled) {
+            $output .= "<button type='button' class='dd-nav-button{$active_class}' data-day='{$lower_day}'>{$day}</button>";
         }
     }
     $output .= '</nav><ul class="daily-deals-list">';
@@ -139,13 +139,20 @@ add_shortcode('daily_deals', function () {
         
         if ($enabled && $promo_image) {
             $output .= "<li id='dd-{$lower_day}' class='daily-deal{$active_class}'>";
-            $output .= "<a href='{$link}' target='_blank'>";
+            if ($link) {
+				$output .= "<a href='{$link}' target='_blank'>";
+			}
             if ($mobile_image) {
-                $output .= "<img class='dd-mobile' src='{$mobile_image}' alt='{$lower_day}' />";
+                $output .= "<img class='dd-mobile' src='{$mobile_image}' alt='Mobile Image' />";
             }
-            $output .= "<img class='dd-promo' src='{$promo_image}' alt='{$lower_day}' />";
-            $output .= "<span class='dd-caption'>{$caption}</span>";
-            $output .= "</a></li>";
+            $output .= "<img class='dd-promo' src='{$promo_image}' alt='Promo Image' />";
+            if ($caption) {
+				$output .= "<span class='dd-caption'>{$caption}</span>";
+			}
+			if ($link) {
+				$output .= "</a>";
+			}
+            $output .= "</li>";
         }
     }
     $output .= '</ul></div>';
@@ -160,7 +167,7 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('daily-deals-style', plugin_dir_url(__FILE__) . 'daily-deals.css');
 });
 
-// AJAX handler to get the current day in site's timezone
+// Add AJAX handler in WordPress to get the current day in site's timezone
 add_action('wp_ajax_get_wordpress_timezone_day', 'get_wordpress_timezone_day');
 add_action('wp_ajax_nopriv_get_wordpress_timezone_day', 'get_wordpress_timezone_day');
 function get_wordpress_timezone_day() {
