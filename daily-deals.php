@@ -2,7 +2,7 @@
 /*
 Plugin Name: Daily Deals Rotator
 Description: Manage an automatic daily deal promo rotator with images, captions, and links.
-Version: 1.0.4
+Version: 1.0.5
 Author: StratLab Marketing
 Author URI: https://strategylab.ca/
 Text Domain: daily-deals
@@ -81,7 +81,8 @@ function daily_deals_settings_page()
 
 	// Form for each day
 	echo '<div class="wrap"><h1>Daily Deals</h1>';
-	echo '<p>Place shortcode <code>[daily_deals nav="true"]</code> anywhere to display the daily deal rotator!</p>';
+	echo '<p>Place shortcode <code>[daily_deals nav="1"]</code> anywhere to display the daily deal rotator!</p>';
+	echo '<p>Place shortcode <code>[daily_deals_widget image-size="responsive"]</code> to just show today\'s promo. Use image-size="mobile" to show the mobile version on all screen sizes.</p>';
 	echo '<form method="post"><div class="day-form-wrap">';
 	foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
 		$lower_day = strtolower($day);
@@ -167,6 +168,54 @@ add_shortcode('daily_deals', function ($atts) {
 	}
 	$output .= '</ul></div>';
     
+	return $output;
+});
+
+// Single day deal widget shortcode
+add_shortcode('daily_deals_widget', function ($atts) {
+	$atts = shortcode_atts(array(
+	    'image-size' => 'responsive', // Default to responsive, can be 'responsive', 'desktop', 'mobile'
+	), $atts, 'daily_deals_widget');
+
+	$current_day = strtolower(date('l'));
+	$enabled = get_option("daily_deals_{$current_day}_enabled");
+	$promo_image = esc_url(get_option("daily_deals_{$current_day}_promo_image"));
+	$mobile_image = esc_url(get_option("daily_deals_{$current_day}_mobile_image"));
+	$link = esc_url(get_option("daily_deals_{$current_day}_link"));
+	$caption = esc_html(get_option("daily_deals_{$current_day}_caption"));
+
+	if (!$enabled || !$promo_image) {
+	    return ''; // Return nothing if no deal is enabled for today
+	}
+
+	$output = "<div class='daily-deal-widget'>";
+	if ($link) {
+		$output .= "<a href='{$link}' target='_blank'>";
+	}
+    
+	switch ($atts['image-size']) {
+		case 'desktop':
+			$output .= "<img class='dd-promo' src='{$promo_image}' alt='$current_day' />";
+			break;
+		case 'mobile':
+			$output .= "<img class='dd-mobile-widget' src='" . ($mobile_image ? $mobile_image : $promo_image) . "' alt='$current_day' />";
+			break;
+		case 'responsive':
+			default:
+			if ($mobile_image) {
+				$output .= "<img class='dd-mobile' src='{$mobile_image}' alt='$current_day' />";
+			}
+			$output .= "<img class='dd-promo' src='{$promo_image}' alt='$current_day' />";
+			break;
+	}
+	if ($caption) {
+		$output .= "<span class='dd-caption'>{$caption}</span>";
+	}
+	if ($link) {
+		$output .= "</a>";
+	}
+	$output .= "</div>";
+	
 	return $output;
 });
 
