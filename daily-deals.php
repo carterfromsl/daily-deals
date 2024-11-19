@@ -2,7 +2,7 @@
 /*
 Plugin Name: Daily Deals Rotator
 Description: Manage an automatic daily deal promo rotator with images, captions, and links.
-Version: 1.0.5
+Version: 1.0.5.1
 Author: StratLab Marketing
 Author URI: https://strategylab.ca/
 Text Domain: daily-deals
@@ -126,7 +126,7 @@ add_shortcode('daily_deals', function ($atts) {
     
 	if ($atts['nav']) {
 		$output .= '<nav class="dd-nav">';
-		$current_day = strtolower(date('l'));
+		$current_day = strtolower(wp_date('l'));
 		foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
 			$lower_day = strtolower($day);
 			$enabled = get_option("daily_deals_{$lower_day}_enabled");
@@ -177,7 +177,7 @@ add_shortcode('daily_deals_widget', function ($atts) {
 	    'image-size' => 'responsive', // Default to responsive, can be 'responsive', 'desktop', 'mobile'
 	), $atts, 'daily_deals_widget');
 
-	$current_day = strtolower(date('l'));
+	$current_day = strtolower(wp_date('l'));
 	$enabled = get_option("daily_deals_{$current_day}_enabled");
 	$promo_image = esc_url(get_option("daily_deals_{$current_day}_promo_image"));
 	$mobile_image = esc_url(get_option("daily_deals_{$current_day}_mobile_image"));
