@@ -80,7 +80,7 @@ function daily_deals_settings_page()
     }
 
     // Form for each day
-    echo '<div class="wrap"><h1>Daily Deals</h1><form method="post">';
+    echo '<div class="wrap"><h1>Daily Deals</h1><form method="post"><div class="day-form-wrap">';
     foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
         $lower_day = strtolower($day);
         $enabled = get_option("daily_deals_{$lower_day}_enabled");
@@ -110,7 +110,7 @@ function daily_deals_settings_page()
 
         echo "<div class='day-input'><label for='daily_deals_{$lower_day}_caption'>Caption:</label><textarea id='daily_deals_{$lower_day}_caption' name='daily_deals_{$lower_day}_caption'>" . esc_textarea(get_option("daily_deals_{$lower_day}_caption")) . "</textarea></div></div></div>";
     }
-    echo '<input type="submit" value="Save Changes" class="button button-primary"></form></div>';
+    echo '</div><input type="submit" value="Save Changes" class="button button-primary"></form></div>';
 }
 
 // Shortcode to display daily deals
