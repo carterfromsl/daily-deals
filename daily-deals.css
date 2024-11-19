@@ -1,0 +1,44 @@
+.dd-nav {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.dd-nav button {
+  appearance: none;
+  cursor: pointer;
+  flex-grow: 1;
+}
+
+.dd-nav .active-nav {
+  font-weight: bold;
+}
+
+.daily-deals-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.daily-deal {
+  display: none;
+}
+
+.daily-deal.active-deal {
+  display: block;
+}
+
+@media (min-width: 767px) {
+  img.dd-mobile {
+    display: none;
+  }
+  img.dd-promo {
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  img.dd-mobile + img {
+    display: none;
+  }
+}
