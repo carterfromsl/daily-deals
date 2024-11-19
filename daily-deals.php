@@ -2,7 +2,7 @@
 /*
 Plugin Name: Daily Deals Rotator
 Description: Manage an automatic daily deal promo rotator with images, captions, and links.
-Version: 1.0.5.1
+Version: 1.0.5
 Author: StratLab Marketing
 Author URI: https://strategylab.ca/
 Text Domain: daily-deals
@@ -54,8 +54,7 @@ function daily_deals_enqueue_scripts($hook) {
     } else {
         // Frontend-specific styles and scripts
         wp_enqueue_style('daily-deals-frontend-styles', plugin_dir_url(__FILE__) . 'daily-deals.css');
-        wp_enqueue_script('daily-deals-frontend-script', plugin_dir_url(__FILE__) . 'daily-deals.js', array('jquery'), null, true);
-		wp_localize_script('daily-deals-frontend-script', 'daily_deals_data', array('ajax_url' => admin_url('admin-ajax.php')));
+        wp_enqueue_script('daily-deals-frontend-script', plugin_dir_url(__FILE__) . 'daily-deals.js?v=1.1', array('jquery'), null, true);
     }
 }
 add_action('admin_enqueue_scripts', 'daily_deals_enqueue_scripts');
@@ -218,21 +217,5 @@ add_shortcode('daily_deals_widget', function ($atts) {
 	
 	return $output;
 });
-
-// Enqueue necessary scripts for interactivity
-add_action('wp_enqueue_scripts', function () {
-	wp_enqueue_script('daily-deals-script', plugin_dir_url(__FILE__) . 'daily-deals.js', ['jquery'], null, true);
-	wp_localize_script('daily-deals-script', 'daily_deals_data', array('ajax_url' => admin_url('admin-ajax.php')));
-	wp_enqueue_style('daily-deals-style', plugin_dir_url(__FILE__) . 'daily-deals.css');
-});
-
-// Add AJAX handler in WordPress to get the current day in site's timezone
-add_action('wp_ajax_get_wordpress_timezone_day', 'get_wordpress_timezone_day');
-add_action('wp_ajax_nopriv_get_wordpress_timezone_day', 'get_wordpress_timezone_day');
-function get_wordpress_timezone_day() {
-	$timezone = wp_timezone();
-	$current_time = new DateTime('now', $timezone);
-	wp_send_json(array('day' => $current_time->format('l'), 'time' => $current_time->format('H:i:s')));
-}
 
 ?>
